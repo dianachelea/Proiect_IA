@@ -1,6 +1,6 @@
 ##########################################################################
 #                                                                        #
-#  Copyright:   (c) 2024-2025, Bianca Spiridon, Diana-Maria Chelea   #
+#  Copyright:   (c) 2024-2025, Bianca Spiridon, Diana-Maria Chelea       #
 #  E-mail:      bianca.spiridon@student.tuiasi.ro                        #
 #               diana-maria.chelea@student.tuiasi.ro                     #
 #  Description: Rezolvarea integramelor folosind algoritmul              #
@@ -73,3 +73,86 @@ def update(grid, cuvinte):
         #print(cuvant)
         #print(pozitii)
     return domeniu
+
+def forward_checking(grid, cuvinte):
+    #se memoreaza multimea curenta de valori permise
+    domenii = update(grid, cuvinte)
+    #daca nu mai ramane nici un cuvant s-a incheiat algoritmul
+    if not cuvinte:
+        return True  
+    
+    #euristica pentru ordonarea variabilelor in ordine crescatoare pentru a accelera cautarea 
+    cuvant_curent = cea_mai_constransa_variabila(domenii)
+    #daca nu sunt pozitii disponibile va trebui sa stearga si sa se intoarca 
+    if not domenii[cuvant_curent]:
+        return False  
+
+    for coordonata in domenii[cuvant_curent]:
+        temp = []
+        if coordonata.directie == "O":
+            for litera in range(len(cuvant_curent)):
+                #se salveaza un temp in cazul in care cuvantul va duce la imposibilitati si se va relua pozitia initiala
+                temp.append(grid[coordonata.linie][coordonata.coloana + litera])  
+                grid[coordonata.linie][coordonata.coloana + litera] = cuvant_curent[litera] 
+            for r in grid:
+                print(" ",r)
+            cuvinte_ramase = []
+            for cuvant in cuvinte:
+                if cuvant != cuvant_curent:
+                    cuvinte_ramase.append(cuvant)
+            #recursivitate cu noua lista de cuvinte disponibila
+            if forward_checking(grid, cuvinte_ramase):
+                return True
+            #se sterge in cazul in care nu ajungem la solutii
+            for litera in range(len(cuvant_curent)):
+                grid[coordonata.linie][coordonata.coloana + litera] = temp[litera]            
+            for r in grid:
+                print(" ", r)
+        elif coordonata.directie == "V":
+            for litera in range(len(cuvant_curent)):
+                temp.append(grid[coordonata.linie + litera][coordonata.coloana])
+                grid[coordonata.linie + litera][coordonata.coloana] = cuvant_curent[litera]            
+            for r in grid:
+                print(" ", r)
+            cuvinte_ramase = []
+            for cuvant in cuvinte:
+                if cuvant != cuvant_curent:
+                    cuvinte_ramase.append(cuvant)
+            if forward_checking(grid, cuvinte_ramase):
+                return True
+            for litera in range(len(cuvant_curent)):
+                grid[coordonata.linie + litera][coordonata.coloana] = temp[litera]            
+            for r in grid:
+                print(" ",r)
+
+    return False
+
+def display_result(grid):
+    root = tk.Tk()
+    root.title("Integrama")
+
+    for i, row in enumerate(grid):
+        for j, celula in enumerate(row):
+            if celula == "#":
+                label = tk.Label(root, text=" ", width=2, height=1, bg="black", relief="solid")
+            else:
+                label = tk.Label(root, text=celula, width=2, height=1, borderwidth=1, relief="solid", font=("Arial", 14))
+            label.grid(row=i, column=j)
+
+    root.mainloop()   
+
+if __name__ == "__main__":
+    grid=[]
+    cuvinte=[]
+    with open("grid_exemplu1.txt", "r") as file:
+        for i in file:
+            grid.append(list(i.strip().split()))
+    
+    with open("cuvinte_exemplu1.txt", "r") as file:
+        for i in file:
+            cuvinte.append(i.strip())
+
+    if forward_checking(grid, cuvinte):
+        display_result(grid)
+    else:
+        print("Nu s-a gasit nici o solutie.")
