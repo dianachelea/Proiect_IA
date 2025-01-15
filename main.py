@@ -144,11 +144,11 @@ def display_result(grid):
 if __name__ == "__main__":
     grid=[]
     cuvinte=[]
-    with open("grid_exemplu1.txt", "r") as file:
+    with open("grid_exemplu4.txt", "r") as file:
         for i in file:
             grid.append(list(i.strip().split()))
     
-    with open("cuvinte_exemplu1.txt", "r") as file:
+    with open("cuvinte_exemplu4.txt", "r") as file:
         for i in file:
             cuvinte.append(i.strip())
 
